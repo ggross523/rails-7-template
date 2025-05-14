@@ -1,7 +1,8 @@
 Rails.application.routes.draw do
-
-  # This is a blank app! Pick your first screen, build out the RCAV, and go from there. E.g.:
-
-  # get "/your_first_screen" => "pages#first"
-  
+  resources :course_evaluations, only: [:index] do
+    collection do
+      get :import
+      post :upload
+    end
+  end
 end

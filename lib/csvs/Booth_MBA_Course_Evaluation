@@ -1,0 +1,15 @@
+require 'csv'
+
+namespace :import do
+  desc "Import users from CSV"
+  task users: :environment do
+    CSV.foreach(Rails.root.join('path/to/your/file.csv'), headers: true) do |row|
+      User.create!(
+        name: row['name'],
+        email: row['email'],
+        age: row['age']
+      )
+    end
+    puts "Users imported successfully!"
+  end
+end
