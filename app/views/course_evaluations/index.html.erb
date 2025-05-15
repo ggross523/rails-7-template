@@ -1,0 +1,57 @@
+<!-- app/views/course_evaluations/index.html.erb -->
+<div class="container">
+  <h1>All Course Evaluations</h1>
+  
+  <div class="mb-3">
+    <%= link_to "Back to Dashboard", "/", class: "btn btn-secondary" %>
+  </div>
+  
+  <!-- Search Bar -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <%= form_with(url: "/course_evaluations", method: :get, class: "row g-3") do |form| %>
+        <div class="col-md-10">
+          <%= form.text_field :search, class: "form-control", placeholder: "Search by Course Name, Course Title, or Instructor", value: params[:search] %>
+        </div>
+        <div class="col-md-2">
+          <%= form.submit "Search", class: "btn btn-primary w-100" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  
+  <div class="card">
+    <div class="card-body">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Course Name</th>
+            <th>Course Title</th>
+            <th>Section</th>
+            <th>Instructor</th>
+            <th>Term</th>
+            <th>Response Rate</th>
+            <th>Recommendation</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @evaluations.each do |eval| %>
+            <tr>
+              <td><%= eval.course_name %></td>
+              <td><%= eval.course_title %></td>
+              <td><%= eval.course_section %></td>
+              <td><%= "#{eval.first_name} #{eval.last_name}" %></td>
+              <td><%= eval.term %></td>
+              <td><%= eval.response_ratio ? "#{eval.response_ratio.round(1)}%" : "N/A" %></td>
+              <td><%= eval.recommendation_mean&.round(2) || "N/A" %></td>
+              <td>
+                <%= link_to "View", "/course_evaluations/#{eval.id}", class: "btn btn-sm btn-info" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

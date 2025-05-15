@@ -21,13 +21,28 @@
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
 #
+
 class CourseEvaluation < ApplicationRecord
-  validates :course_name, :course_title, :first_name, :last_name, presence: true
+  # Explicitly define the course_title attribute
+  attribute :course_title, :string
   
+  # Add this line
+  attribute :course_title, :string
   
-  validates :clarity_mean, :interest_mean, :tools_insights_mean, 
-            :value_mean, :recommendation_mean,
-            numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 5, allow_nil: true }
-            
- 
+  # Validations
+  validates :course_name, :course_title, presence: true
+  
+  # Scope for highly-rated courses
+  scope :highly_rated, -> { where("recommendation_mean >= ?", 4.5) }
+  
+  # Helper method to get full instructor name
+  def instructor_name
+    "#{first_name} #{last_name}"
+  end
+  
+  # Format response ratio as percentage
+  def response_rate_percentage
+    return nil if response_ratio.nil?
+    "#{(response_ratio * 100).round(1)}%"
+  end
 end

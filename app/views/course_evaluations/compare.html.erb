@@ -1,0 +1,242 @@
+<!-- app/views/course_evaluations/compare.html.erb -->
+<div class="container">
+  <h1>Compare Courses</h1>
+  
+  <div class="mb-3">
+    <%= link_to "Back to Dashboard", "/", class: "btn btn-secondary" %>
+  </div>
+  
+  <div class="card mb-4">
+    <div class="card-header">
+      <h3>Select Courses to Compare</h3>
+    </div>
+    <div class="card-body">
+      <%= form_with(url: "/course_evaluations/compare", method: :get) do |form| %>
+        <div class="mb-3">
+          <label class="form-label">Select up to 5 courses to compare:</label>
+          <div class="row">
+            <% if @courses && @courses.any? %>
+              <% @courses.each do |course| %>
+                <div class="col-md-6 mb-2">
+                  <div class="form-check">
+                    <%= check_box_tag 'course_ids[]', course.id, params[:course_ids]&.include?(course.id.to_s), 
+                                     id: "course_#{course.id}", class: "form-check-input" %>
+                    <%= label_tag "course_#{course.id}", "#{course.course_title} (#{course.first_name} #{course.last_name}) - #{course.term}", 
+                                class: "form-check-label" %>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+        
+        <!-- Moved Compare button to the top -->
+        <div class="mb-3">
+          <%= form.submit "Compare Selected Courses", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  
+  <% if params[:course_ids].present? && @evaluations.present? %>
+    <div class="card mb-4">
+      <div class="card-header">
+        <h3>Course Comparison</h3>
+      </div>
+      <div class="card-body">
+        <div class="mb-4">
+          <h4>Rating Comparison</h4>
+          <div style="height: 400px;">
+            <canvas id="comparisonChart"></canvas>
+          </div>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Course Title</th>
+                <th>Instructor</th>
+                <th>Term</th>
+                <th>Clarity</th>
+                <th>Interest</th>
+                <th>Tools</th>
+                <th>Value</th>
+                <th>Recommendation</th>
+                <th>Hours Prep</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @evaluations.each do |eval| %>
+                <tr>
+                  <td><%= eval.course_title %></td>
+                  <td><%= "#{eval.first_name} #{eval.last_name}" %></td>
+                  <td><%= eval.term %></td>
+                  <td><%= eval.clarity_mean&.round(2) || "N/A" %></td>
+                  <td><%= eval.interest_mean&.round(2) || "N/A" %></td>
+                  <td><%= eval.tools_insights_mean&.round(2) || "N/A" %></td>
+                  <td><%= eval.value_mean&.round(2) || "N/A" %></td>
+                  <td><%= eval.recommendation_mean&.round(2) || "N/A" %></td>
+                  <td><%= eval.avg_hours_prep&.round(1) || "N/A" %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Individual Course Metrics -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h3>Individual Course Details</h3>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <% @evaluations.each do |eval| %>
+            <div class="col-md-6 mb-4">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h4><%= eval.course_title %></h4>
+                  <p class="mb-0">Course: <%= eval.course_name %></p>
+                </div>
+                <div class="card-body">
+                  <p><strong>Instructor:</strong> <%= "#{eval.first_name} #{eval.last_name}" %></p>
+                  <p><strong>Term:</strong> <%= eval.term %></p>
+                  
+                  <h5 class="mt-3">Ratings</h5>
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      Clarity
+                      <span class="badge bg-primary rounded-pill"><%= eval.clarity_mean&.round(2) || "N/A" %></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      Interest
+                      <span class="badge bg-primary rounded-pill"><%= eval.interest_mean&.round(2) || "N/A" %></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      Tools & Insights
+                      <span class="badge bg-primary rounded-pill"><%= eval.tools_insights_mean&.round(2) || "N/A" %></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      Value
+                      <span class="badge bg-primary rounded-pill"><%= eval.value_mean&.round(2) || "N/A" %></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      Recommendation
+                      <span class="badge bg-primary rounded-pill"><%= eval.recommendation_mean&.round(2) || "N/A" %></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      Hours Prep/Week
+                      <span class="badge bg-primary rounded-pill"><%= eval.avg_hours_prep&.round(1) || "N/A" %></span>
+                    </li>
+                  </ul>
+                  
+                  <div class="mt-3">
+                    <%= link_to "View Details", "/course_evaluations/#{eval.id}", class: "btn btn-info btn-sm" %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% elsif params[:course_ids].present? %>
+    <div class="alert alert-warning">
+      No evaluation data found for the selected courses.
+    </div>
+  <% end %>
+</div>
+
+<% if params[:course_ids].present? && @evaluations.present? %>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const ctx = document.getElementById('comparisonChart').getContext('2d');
+      
+      // Prepare data using course_title instead of course_name
+      const labels = <%= raw @evaluations.map { |e| "#{e.course_title} (#{e.term})" }.to_json %>;
+      
+      // Create datasets for each metric
+      const datasets = [
+        {
+          label: 'Clarity',
+          data: <%= raw @evaluations.map { |e| e.clarity_mean || 0 }.to_json %>,
+          backgroundColor: 'rgba(128, 0, 0, 0.2)',
+          borderColor: 'rgba(128, 0, 0, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Interest',
+          data: <%= raw @evaluations.map { |e| e.interest_mean || 0 }.to_json %>,
+          backgroundColor: 'rgba(0, 128, 0, 0.2)',
+          borderColor: 'rgba(0, 128, 0, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Tools & Insights',
+          data: <%= raw @evaluations.map { |e| e.tools_insights_mean || 0 }.to_json %>,
+          backgroundColor: 'rgba(0, 0, 128, 0.2)',
+          borderColor: 'rgba(0, 0, 128, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Value',
+          data: <%= raw @evaluations.map { |e| e.value_mean || 0 }.to_json %>,
+          backgroundColor: 'rgba(128, 128, 0, 0.2)',
+          borderColor: 'rgba(128, 128, 0, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Recommendation',
+          data: <%= raw @evaluations.map { |e| e.recommendation_mean || 0 }.to_json %>,
+          backgroundColor: 'rgba(128, 0, 128, 0.2)',
+          borderColor: 'rgba(128, 0, 128, 1)',
+          borderWidth: 1
+        }
+      ];
+      
+      // Create bar chart
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 5,
+              title: {
+                display: true,
+                text: 'Rating (0-5)'
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Courses'
+              }
+            }
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: 'Course Rating Comparison',
+              font: {
+                size: 16
+              }
+            },
+            legend: {
+              position: 'top'
+            }
+          }
+        }
+      });
+    });
+  </script>
+<% end %>

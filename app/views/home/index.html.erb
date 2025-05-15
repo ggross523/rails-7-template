@@ -1,0 +1,110 @@
+<!-- app/views/home/index.html.erb -->
+<div class="container">
+  <div class="header text-center mb-5">
+    <h1 class="display-4">Course Evaluation Helper</h1>
+    <p class="lead">Analyze and explore Booth MBA course evaluations</p>
+  </div>
+
+  <!-- Dashboard Cards -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Total Courses</h5>
+          <p class="card-text display-5"><%= @total_courses %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Total Instructors</h5>
+          <p class="card-text display-5"><%= @total_instructors %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Total Evaluations</h5>
+          <p class="card-text display-5"><%= @total_evaluations %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Average Ratings Section -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3>Average Ratings Across All Courses</h3>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col">
+              <h5>Clarity</h5>
+              <div class="display-6"><%= @avg_clarity&.round(2) || 'N/A' %></div>
+            </div>
+            <div class="col">
+              <h5>Interest</h5>
+              <div class="display-6"><%= @avg_interest&.round(2) || 'N/A' %></div>
+            </div>
+            <div class="col">
+              <h5>Tools & Insights</h5>
+              <div class="display-6"><%= @avg_tools&.round(2) || 'N/A' %></div>
+            </div>
+            <div class="col">
+              <h5>Value</h5>
+              <div class="display-6"><%= @avg_value&.round(2) || 'N/A' %></div>
+            </div>
+            <div class="col">
+              <h5>Recommendation</h5>
+              <div class="display-6"><%= @avg_recommend&.round(2) || 'N/A' %></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3>Quick Actions</h3>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-around flex-wrap">
+            <%= link_to "View All Evaluations", "/course_evaluations", class: "btn btn-primary m-2" %>
+            <%= link_to "Search by Instructor", "/course_evaluations/search/instructor", class: "btn btn-info m-2" %>
+            <%= link_to "Compare Courses", "/course_evaluations/compare", class: "btn btn-warning m-2" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- About Section -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3>About This Tool</h3>
+        </div>
+        <div class="card-body">
+          <p>The Course Evaluation Helper is designed to help Booth MBA students and administrators analyze and explore course evaluation data. Use this tool to:</p>
+          <ul>
+            <li>Find the highest-rated courses</li>
+            <li>Compare different courses and sections</li>
+            <li>Search evaluations by instructor</li>
+            <li>Analyze course ratings across multiple dimensions</li>
+          </ul>
+          <p>This tool is based on actual course evaluation data from the Chicago Booth School of Business.</p>
+          <p> It was built by Gideon Gross (Class of 2025).</p>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>

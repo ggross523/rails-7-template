@@ -1,45 +1,66 @@
 # app/controllers/course_evaluations_controller.rb
 class CourseEvaluationsController < ApplicationController
   def index
-    @evaluations = CourseEvaluation.all
+  # Initialize query
+  @evaluations = CourseEvaluation.all
+  
+  # Apply search if parameter exists
+  if params[:search].present?
+    search_term = "%#{params[:search]}%"
+    @evaluations = @evaluations.where(
+      "course_name ILIKE ? OR course_title ILIKE ? OR first_name ILIKE ? OR last_name ILIKE ?", 
+      search_term, search_term, search_term, search_term
+    )
   end
   
-  def import
-    # Shows the upload form
+  # Apply final ordering
+  @evaluations = @evaluations.order(course_name: :asc)
+  end
+ 
+  def show
+    @evaluation = CourseEvaluation.find(params[:id])
   end
   
-  def upload
-    if params[:file].present? && params[:file].content_type == 'text/csv'
-      counter = 0
+  def search_instructor
+    if params[:instructor].present?
+      name_parts = params[:instructor].split
       
-      CSV.foreach(params[:file].path, headers: true) do |row|
-        response_ratio = row['%ResponseRatio'].present? ? row['%ResponseRatio'].to_f : nil
+      if name_parts.size > 1
+        # Search by both first and last name
+        first_name = name_parts.first
+        last_name = name_parts.last
         
-        CourseEvaluation.create!(
-          course_name: row['Course Name'],
-          course_section: row['Course Section'],
-          course_title: row['Course Title'],
-          first_name: row['First Name'],
-          last_name: row['Last Name'],
-          term: row['Term'],
-          invited_count: row['InvitedCount'],
-          respondent_count: row['RespondentCount'],
-          response_ratio: response_ratio,
-          avg_hours_prep: row['Excluding class sessions, estimate the average number of hours per week spent in preparation or review. - Mean'],
-          clarity_mean: row['Overall, did the instructor convey the course material clearly? - Mean'],
-          interest_mean: row['Overall, did the instructor convey the course material in an interesting way? - Mean'],
-          tools_insights_mean: row['Did you take away useful tools, concepts, and/or insights from this course? - Mean'],
-          value_mean: row['How much did you get out of this course? - Mean'],
-          recommendation_mean: row['Would you recommend this course to other students? - Mean']
-        )
-        counter += 1
+        @evaluations = CourseEvaluation.where("first_name ILIKE ? AND last_name ILIKE ?", 
+                                             "%#{first_name}%", "%#{last_name}%")
+      else
+        # Search by either first or last name
+        @evaluations = CourseEvaluation.where("first_name ILIKE ? OR last_name ILIKE ?", 
+                                             "%#{params[:instructor]}%", "%#{params[:instructor]}%")
       end
-      
-      redirect_to course_evaluations_path, notice: "Successfully imported #{counter} course evaluations."
     else
-      redirect_to import_course_evaluations_path, alert: "Please upload a valid CSV file."
+      # For the initial page load, get all unique instructors for the form
+      @instructors = CourseEvaluation.select("DISTINCT first_name, last_name")
+                                   .order("last_name, first_name")
     end
-  rescue => e
-    redirect_to import_course_evaluations_path, alert: "Error: #{e.message}"
+  end
+  
+  # app/controllers/course_evaluations_controller.rb (update the compare method)
+def compare
+  if params[:course_ids].present?
+    @evaluations = CourseEvaluation.where(id: params[:course_ids])
+    
+    # Update chart data to use course_title instead of course_name
+    @chart_data = {
+      labels: @evaluations.map { |e| e.course_title },
+      clarity: @evaluations.map { |e| e.clarity_mean || 0 },
+      interest: @evaluations.map { |e| e.interest_mean || 0 },
+      tools: @evaluations.map { |e| e.tools_insights_mean || 0 },
+      value: @evaluations.map { |e| e.value_mean || 0 },
+      recommendation: @evaluations.map { |e| e.recommendation_mean || 0 }
+    }
+  else
+    # For the initial page load, get courses for selection
+    @courses = CourseEvaluation.select("id, course_name, course_title, first_name, last_name, term")
+                             .order("course_title")
   end
 end
