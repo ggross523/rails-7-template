@@ -1,22 +1,23 @@
 # app/controllers/course_evaluations_controller.rb
+# app/controllers/course_evaluations_controller.rb
 class CourseEvaluationsController < ApplicationController
   def index
-  # Initialize query
-  @evaluations = CourseEvaluation.all
-  
-  # Apply search if parameter exists
-  if params[:search].present?
-    search_term = "%#{params[:search]}%"
-    @evaluations = @evaluations.where(
-      "course_name ILIKE ? OR course_title ILIKE ? OR first_name ILIKE ? OR last_name ILIKE ?", 
-      search_term, search_term, search_term, search_term
-    )
+    # Initialize query
+    @evaluations = CourseEvaluation.all
+    
+    # Apply search if parameter exists
+    if params[:search].present?
+      search_term = "%#{params[:search]}%"
+      @evaluations = @evaluations.where(
+        "course_name ILIKE ? OR course_title ILIKE ? OR first_name ILIKE ? OR last_name ILIKE ?", 
+        search_term, search_term, search_term, search_term
+      )
+    end
+    
+    # Apply sorting: first by course_name ascending, then by term descending
+    @evaluations = @evaluations.order(course_name: :asc, term: :desc)
   end
   
-  # Apply final ordering
-  @evaluations = @evaluations.order(course_name: :asc)
-  end
- 
   def show
     @evaluation = CourseEvaluation.find(params[:id])
   end
@@ -37,6 +38,9 @@ class CourseEvaluationsController < ApplicationController
         @evaluations = CourseEvaluation.where("first_name ILIKE ? OR last_name ILIKE ?", 
                                              "%#{params[:instructor]}%", "%#{params[:instructor]}%")
       end
+      
+      # Apply the same sorting as the index page
+      @evaluations = @evaluations.order(course_name: :asc, term: :desc)
     else
       # For the initial page load, get all unique instructors for the form
       @instructors = CourseEvaluation.select("DISTINCT first_name, last_name")
@@ -44,23 +48,23 @@ class CourseEvaluationsController < ApplicationController
     end
   end
   
-  # app/controllers/course_evaluations_controller.rb (update the compare method)
-def compare
-  if params[:course_ids].present?
-    @evaluations = CourseEvaluation.where(id: params[:course_ids])
-    
-    # Update chart data to use course_title instead of course_name
-    @chart_data = {
-      labels: @evaluations.map { |e| e.course_title },
-      clarity: @evaluations.map { |e| e.clarity_mean || 0 },
-      interest: @evaluations.map { |e| e.interest_mean || 0 },
-      tools: @evaluations.map { |e| e.tools_insights_mean || 0 },
-      value: @evaluations.map { |e| e.value_mean || 0 },
-      recommendation: @evaluations.map { |e| e.recommendation_mean || 0 }
-    }
-  else
-    # For the initial page load, get courses for selection
-    @courses = CourseEvaluation.select("id, course_name, course_title, first_name, last_name, term")
-                             .order("course_title")
+  def compare
+    if params[:course_ids].present?
+      @evaluations = CourseEvaluation.where(id: params[:course_ids])
+      
+      # Calculate averages for chart data
+      @chart_data = {
+        labels: @evaluations.map { |e| e.course_title },
+        clarity: @evaluations.map { |e| e.clarity_mean || 0 },
+        interest: @evaluations.map { |e| e.interest_mean || 0 },
+        tools: @evaluations.map { |e| e.tools_insights_mean || 0 },
+        value: @evaluations.map { |e| e.value_mean || 0 },
+        recommendation: @evaluations.map { |e| e.recommendation_mean || 0 }
+      }
+    else
+      # For the initial page load, get courses for selection
+      @courses = CourseEvaluation.select("id, course_name, course_title, first_name, last_name, term")
+                               .order("course_title")
+    end
   end
 end

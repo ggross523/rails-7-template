@@ -22,15 +22,12 @@
 #  updated_at          :datetime         not null
 #
 
+# app/controllers/course_evaluations_controller.rb
+# app/controllers/course_evaluations_controller.rb
+# app/models/course_evaluation.rb
 class CourseEvaluation < ApplicationRecord
-  # Explicitly define the course_title attribute
-  attribute :course_title, :string
-  
-  # Add this line
-  attribute :course_title, :string
-  
   # Validations
-  validates :course_name, :course_title, presence: true
+  validates :course_name, presence: true
   
   # Scope for highly-rated courses
   scope :highly_rated, -> { where("recommendation_mean >= ?", 4.5) }
@@ -43,6 +40,6 @@ class CourseEvaluation < ApplicationRecord
   # Format response ratio as percentage
   def response_rate_percentage
     return nil if response_ratio.nil?
-    "#{(response_ratio * 100).round(1)}%"
+    "#{response_ratio.round(1)}%"
   end
 end

@@ -11,7 +11,7 @@
     <div class="card-body">
       <%= form_with(url: "/course_evaluations", method: :get, class: "row g-3") do |form| %>
         <div class="col-md-10">
-          <%= form.text_field :search, class: "form-control", placeholder: "Search by Course Name, Course Title, or Instructor", value: params[:search] %>
+          <%= form.text_field :search, class: "form-control", placeholder: "Search by Course Number, Course Title, or Instructor", value: params[:search] %>
         </div>
         <div class="col-md-2">
           <%= form.submit "Search", class: "btn btn-primary w-100" %>
@@ -25,7 +25,7 @@
       <table class="table table-striped">
         <thead>
           <tr>
-            <th>Course Name</th>
+            <th>Course Number</th>
             <th>Course Title</th>
             <th>Section</th>
             <th>Instructor</th>
