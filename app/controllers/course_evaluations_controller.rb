@@ -1,5 +1,4 @@
 # app/controllers/course_evaluations_controller.rb
-# app/controllers/course_evaluations_controller.rb
 class CourseEvaluationsController < ApplicationController
   def index
     # Initialize query

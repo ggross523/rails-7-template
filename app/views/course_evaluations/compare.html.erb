@@ -12,6 +12,11 @@
     </div>
     <div class="card-body">
       <%= form_with(url: "/course_evaluations/compare", method: :get) do |form| %>
+        <!-- Compare button at the top as requested -->
+        <div class="mb-3">
+          <%= form.submit "Compare Selected Courses", class: "btn btn-primary" %>
+        </div>
+        
         <div class="mb-3">
           <label class="form-label">Select up to 5 courses to compare:</label>
           <div class="row">
@@ -28,11 +33,6 @@
               <% end %>
             <% end %>
           </div>
-        </div>
-        
-        <!-- Moved Compare button to the top -->
-        <div class="mb-3">
-          <%= form.submit "Compare Selected Courses", class: "btn btn-primary" %>
         </div>
       <% end %>
     </div>
